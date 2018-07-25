@@ -60,18 +60,17 @@ class MainActivity : AppCompatActivity() {
 
         viewPager.apply {
             adapter = object : PagerAdapter() {
-
-                override fun isViewFromObject(view: View?, `object`: Any?): Boolean = view == `object`
+                override fun isViewFromObject(view: View, `object`: Any): Boolean = view == `object`
 
                 override fun getCount(): Int = views.size
 
-                override fun instantiateItem(container: ViewGroup?, position: Int): Any {
+                override fun instantiateItem(container: ViewGroup, position: Int): Any {
                     val view = views[position]
                     container?.addView(view)
                     return view
                 }
 
-                override fun destroyItem(container: ViewGroup?, position: Int, `object`: Any?) {
+                override fun destroyItem(container: ViewGroup, position: Int, `object`: Any) {
                     container?.removeView(views[position])
                 }
 

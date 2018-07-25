@@ -36,4 +36,6 @@ dependencies {
     implementation 'com.ethanhua:skeleton:1.1.1'
     // Skeleton에 swipe 애니매이션 추가
     implementation 'io.supercharge:shimmerlayout:2.1.0'
+    //icon animation
+    implementation 'com.airbnb.android:lottie:2.5.5'
 }

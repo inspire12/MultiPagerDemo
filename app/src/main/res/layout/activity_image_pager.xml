@@ -12,6 +12,7 @@
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:scaleType="fitXY"
+
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -36,7 +37,7 @@
             android:layout_marginStart="16dp"
             android:background="@android:color/white"
             android:alpha="0.6"
-            android:textSize="@dimen/size_24dp"
+            android:textSize="@dimen/text_size_14sp"
             app:layout_constraintBottom_toTopOf="@+id/tvSkeletonArticle"
             app:layout_constraintStart_toStartOf="parent" />
 
@@ -71,5 +72,52 @@
         app:layout_constraintTop_toTopOf="@+id/ivImagePager">
 
     </LinearLayout>
+
+    <ImageButton
+        android:id="@+id/ibArticle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginLeft="8dp"
+        android:layout_marginRight="8dp"
+        android:layout_marginStart="8dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:srcCompat="@android:drawable/arrow_up_float" />
+
+    <com.airbnb.lottie.LottieAnimationView
+        android:id="@+id/animLottie"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:layout_marginBottom="8dp"
+        android:layout_marginLeft="16dp"
+
+        android:layout_marginStart="16dp"
+        app:layout_constraintBottom_toTopOf="@+id/llArticle"
+
+        app:layout_constraintStart_toStartOf="@+id/ivImagePager"
+        app:lottie_autoPlay="true"
+        app:lottie_fileName="loading_book.json"
+        app:lottie_loop="false" />
+
+    <TextView
+        android:id="@+id/viewPrev"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toBottomOf="@+id/ibArticle"
+        app:layout_constraintEnd_toStartOf="@+id/animLottie"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/viewNext"
+        android:layout_width="20dp"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toBottomOf="@+id/ibArticle"
+        app:layout_constraintEnd_toEndOf="@+id/ivImagePager"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="1.0" />
 
 </android.support.constraint.ConstraintLayout>

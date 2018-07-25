@@ -7,6 +7,7 @@ import android.util.Log
 import android.view.View
 import android.view.animation.*
 import android.widget.*
+import com.airbnb.lottie.LottieAnimationView
 import com.ethanhua.skeleton.Skeleton
 import com.ethanhua.skeleton.SkeletonScreen
 import com.squareup.picasso.Picasso
@@ -22,6 +23,7 @@ class ImagePagerActivity : AppCompatActivity() {
     var animScaleImage:Animation? = null
     var animPagerProgress: Animation? = null
     var animTextFade:Animation? = null
+    var isAnimationing: Boolean = false
     // Default text
     companion object {
         private const val title:String = "박보영"
@@ -29,7 +31,6 @@ class ImagePagerActivity : AppCompatActivity() {
     }
 
     var index = 0
-
 
     //외부에서 데이터를 받아옴
     lateinit var getId:String
@@ -42,28 +43,67 @@ class ImagePagerActivity : AppCompatActivity() {
         animScaleImage = AnimationUtils.loadAnimation(this, R.anim.scale);
         animPagerProgress = ScaleAnimation(0F,1F, 1F, 1F)
         animTextFade = AnimationUtils.loadAnimation(this, R.anim.blink)
+
+
         /**
          * 이전 viewpager에서 위치를 받은 후 처리
          * 받아온 후 애니메이션, 이미지 전환
          */
         intent.getStringExtra("subPager")?.let {
-
             // 데이터를 받음
             getId = intent.getStringExtra("subPager")   // imageUri
             CustomLog.cd("getId",getId)
             listBoyoung = BoyoungHelper.getBoyoungFromJson(getId, baseContext)
+            if(listBoyoung.size == 0){
+                //TODO: listBoyoung 데이터를 못 받아왔을 경우 처리
 
-            //변화하는 부분
+            }
+
             setPaginator()
             startAnimation(ivImagePager)
+            setImageEvent();
         }
     }
+    private fun setImageEvent(){
+        ibArticle.setOnClickListener(object: View.OnClickListener{
+            override fun onClick(v: View?) {
+                TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+            }
+        })
+        viewPrev.setOnClickListener(object: View.OnClickListener{
+            override fun onClick(v: View?) {
+                index = (index - 1 + listBoyoung.size) % listBoyoung.size
+                startAnimation(ivImagePager)
+            }
+        })
+        viewNext.setOnClickListener(object: View.OnClickListener{
+            override fun onClick(v: View?) {
+                index = (index + 1 ) % listBoyoung.size
+                startAnimation(ivImagePager)
+            }
+        })
+        // long click 시 애니메이션 조작
+        ivImagePager.setOnLongClickListener(object: View.OnLongClickListener{
+            override fun onLongClick(v: View?): Boolean {
+                if(isAnimationing){
+                    ivImagePager.clearAnimation()
+                    isAnimationing = false
+                }else{
+                    startAnimation(ivImagePager)
+                }
+                return true
+            }
+        })
+    }
     private fun startAnimation(view: ImageView){
+        isAnimationing = true
         changeImage(index)
+        animLottie.playAnimation()
         animScaleImage!!.setAnimationListener(object: Animation.AnimationListener{
             override fun onAnimationRepeat(animation: Animation?) {
                 index = (index + 1) % listBoyoung.size
                 changeImage(index)
+                animLottie.playAnimation()
             }
             override fun onAnimationEnd(animation: Animation?) {
 
@@ -142,7 +182,7 @@ class ImagePagerActivity : AppCompatActivity() {
                 }
             })
             paginator.addView(btnPage)
-
         }
+
     }
 }
