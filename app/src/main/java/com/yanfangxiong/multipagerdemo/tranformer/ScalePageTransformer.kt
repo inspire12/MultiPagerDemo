@@ -17,7 +17,7 @@ class ScalePageTransformer(
             position < 1 -> minScale + (1 - minScale) * (1 - position)
             else -> minScale
         }
-        page?.scaleY = size
+        page.scaleY = size
     }
 
 }

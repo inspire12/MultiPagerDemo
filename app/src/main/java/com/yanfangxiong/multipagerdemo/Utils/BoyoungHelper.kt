@@ -10,14 +10,9 @@ import java.io.IOException
 object BoyoungHelper {
 
     //enum
-    enum class Key(val KEY_ID: String, val KEY_POSTER_URI: String, val KEY_TITLE: String, val KEY_OVERVIEW: String, val KEY_TWITTER: String){
-        INTENT("id", "imageUri", "title", "overview", "twitter")
+    enum class BoyoungKey(val KEY_ID: String, val KEY_POSTER_URI: String, val KEY_TITLE: String, val KEY_OVERVIEW: String){
+        INTENT("id", "imageUri", "title", "overview")
     }
-    val KEY_ID = "id"
-    val KEY_POSTER_URI = "imageUri"
-    val KEY_TITLE = "title"
-    val KEY_OVERVIEW = "overview"
-    val KEY_TWITTER = "twitter"
 
     fun getBoyoungFromJson(fileName: String, context: Context): ArrayList<Boyoung> {
 
@@ -33,13 +28,12 @@ object BoyoungHelper {
 
             // Create the list of Boyoung
             for (index in 0 until jsonboyoung.length()) {
-                val boyoungId = jsonboyoung.getJSONObject(index).getString(KEY_ID)
-                val boyoungTitle = jsonboyoung.getJSONObject(index).getString(KEY_TITLE)
-                val boyoungPosterUri = jsonboyoung.getJSONObject(index).getString(KEY_POSTER_URI)
-                val boyoungOverview = jsonboyoung.getJSONObject(index).getString(KEY_OVERVIEW)
-               // val boyoungTwitter =  jsonboyoung.getJSONObject(index).getString(KEY_TWITTER)
+                val boyoungId = jsonboyoung.getJSONObject(index).getString(BoyoungKey.INTENT.KEY_ID)
+                val boyoungTitle = jsonboyoung.getJSONObject(index).getString(BoyoungKey.INTENT.KEY_TITLE)
+                val boyoungPosterUri = jsonboyoung.getJSONObject(index).getString(BoyoungKey.INTENT.KEY_POSTER_URI)
+                val boyoungOverview = jsonboyoung.getJSONObject(index).getString(BoyoungKey.INTENT.KEY_OVERVIEW)
+
                 boyoung.add(Boyoung(boyoungId, boyoungPosterUri ,boyoungTitle, boyoungOverview))
-                //boyoung.add(Boyoung(boyoungId, boyoungPosterUri ,boyoungTitle, boyoungOverview,boyoungTwitter))
             }
         } catch (e: JSONException) {
             return boyoung
