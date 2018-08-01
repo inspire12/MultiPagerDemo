@@ -6,13 +6,15 @@
     android:layout_height="match_parent">
 
     <android.support.constraint.ConstraintLayout
+        android:id="@+id/clContainer"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
+
         <ImageView
             android:id="@+id/ivPagerImage"
-            android:contentDescription="@string/app_name"
             android:layout_width="0dp"
             android:layout_height="0dp"
+            android:contentDescription="@string/app_name"
             android:scaleType="fitXY"
 
             app:layout_constraintBottom_toBottomOf="parent"
@@ -23,22 +25,6 @@
             app:layout_constraintVertical_bias="0.0"
             app:srcCompat="@android:drawable/stat_notify_voicemail" />
 
-        <View
-            android:id="@+id/viewNext"
-            android:layout_width="20dp"
-            android:layout_height="0dp"
-            app:layout_constraintBottom_toBottomOf="@+id/ibArticle"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_bias="1.0" />
-
-        <View
-            android:id="@+id/viewPrev"
-            android:layout_width="20dp"
-            android:layout_height="0dp"
-            app:layout_constraintBottom_toBottomOf="@+id/ibArticle"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
 
         <LinearLayout
             android:id="@+id/paginator"
@@ -80,6 +66,17 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent">
 
+            <TextView
+                android:id="@+id/tvTest"
+                android:layout_width="300dp"
+                android:layout_height="40dp"
+                android:layout_marginBottom="8dp"
+                android:layout_marginLeft="16dp"
+                android:layout_marginStart="16dp"
+                android:alpha="0.6"
+                android:background="@android:color/white"
+                android:text="TextView" />
+
             <TextSwitcher
                 android:id="@+id/tsTitle"
                 android:layout_width="300dp"
@@ -97,13 +94,8 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:textColor="@android:color/black"
-                    android:textSize="30dp" />
+                    android:textSize="30sp" />
 
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:textColor="@android:color/black"
-                    android:textSize="30dp" />
             </TextSwitcher>
 
             <TextSwitcher
@@ -123,14 +115,21 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:textColor="@android:color/black"
-                    android:textSize="30dp" />
+                    android:textSize="30sp" />
 
-                <TextView
+            </TextSwitcher>
+
+            <android.support.constraint.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <ImageButton
+                    android:id="@+id/imageButton"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:textColor="@android:color/black"
-                    android:textSize="30dp" />
-            </TextSwitcher>
+                    app:srcCompat="@android:drawable/btn_star_big_off" />
+            </android.support.constraint.ConstraintLayout>
+
         </LinearLayout>
     </android.support.constraint.ConstraintLayout>
 
@@ -146,35 +145,36 @@
         app:layout_behavior="@string/bottom_sheet_behavior"
         tools:layout_editor_absoluteY="511dp">
 
-        <LinearLayout
+        <android.support.constraint.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal">
 
             <ImageButton
-                android:id="@+id/imageButton2"
+                android:id="@+id/ibBottomSheetCancel"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
                 android:layout_weight="1"
                 app:srcCompat="@android:drawable/arrow_down_float" />
-        </LinearLayout>
+        </android.support.constraint.ConstraintLayout>
 
         <TextView
+            android:id="@+id/tvSubTitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Paneer Tikka 1x2" />
 
         <TextView
+            android:id="@+id/tvSubContent"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Delivery Address"
             android:textColor="#444"
             android:textStyle="bold" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Flat No 404, Skyline Apartments, Vizag - 500576" />
 
     </LinearLayout>
 

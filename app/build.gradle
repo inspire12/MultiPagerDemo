@@ -40,8 +40,8 @@ dependencies {
     //icon animation
     implementation 'com.airbnb.android:lottie:2.5.5'
     // drag activity
-    implementation 'com.github.davidmigloz:drag-to-close:0.1'
-    implementation 'com.klinkerapps:drag-dismiss-activity:1.5.1'
+//    implementation 'com.github.davidmigloz:drag-to-close:0.1'
+//    implementation 'com.klinkerapps:drag-dismiss-activity:1.5.1'
     // bottom sheet
     implementation 'com.android.support:design:27.1.1'
 }

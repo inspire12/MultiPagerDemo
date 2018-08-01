@@ -1,12 +1,9 @@
 package com.yanfangxiong.multipagerdemo
 
 import android.animation.Animator
-import android.animation.AnimatorInflater
-import android.content.Context
-import android.content.Intent
+import android.animation.ObjectAnimator
 import android.os.Build
 import android.os.Bundle
-import android.os.Handler
 import android.support.annotation.RequiresApi
 import android.support.design.widget.BottomSheetBehavior
 import android.support.v4.app.Fragment
@@ -16,39 +13,46 @@ import android.view.animation.Animation
 import android.view.animation.AnimationUtils
 import android.view.animation.ScaleAnimation
 import android.widget.Button
-
 import android.widget.ImageView
 import android.widget.LinearLayout
 import com.ethanhua.skeleton.Skeleton
-import com.ethanhua.skeleton.SkeletonScreen
+import com.ethanhua.skeleton.ViewSkeletonScreen
 import com.squareup.picasso.Picasso
 import com.yanfangxiong.multipagerdemo.Utils.Boyoung
 import com.yanfangxiong.multipagerdemo.Utils.CustomLog
 import com.yanfangxiong.multipagerdemo.Utils.OnSwipeTouchListener
 import kotlinx.android.synthetic.main.fragment_article.*
-import xyz.klinker.android.drag_dismiss.DragDismissIntentBuilder
-import android.view.MotionEvent
 
 
 class ArticleViewPagerFragment : Fragment() {
 
 
-    var animPagerProgress: Animation = ScaleAnimation(0F, 1F, 1F, 1F)
+
+    lateinit var bottomSheet: BottomSheetBehavior<View>
+
+
+    var pagerIndex = 0
+    //외부에서 데이터를 받아옴
+    var coverIndex = 0
+    lateinit var listBoyoung: ArrayList<Boyoung>
+    lateinit var skeletonScreen: ViewSkeletonScreen.Builder
+
+    // 애니메이션
+    var animPagerProgress: ScaleAnimation = ScaleAnimation(0F, 1F, 1F, 1F)
     lateinit var animTextFade: Animator
     lateinit var animScaleImage: Animation
     var isAnimationing: Boolean = false
-    var coverIndex = 0
-    var pagerIndex = 0
-    lateinit var bottomSheet: BottomSheetBehavior<View>
-    //외부에서 데이터를 받아옴
-    lateinit var listBoyoung: ArrayList<Boyoung>
 
+    lateinit var anim : Animator
 
+    // 위 아래 swipe 확인
+    var dragX: Float = 0.0F
+    var dragY: Float = 0.0F
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState:
     Bundle?): View? {
         super.onStart()
         val view = inflater.inflate(R.layout.fragment_article, container, false)
-        animTextFade = AnimatorInflater.loadAnimator(context, R.animator.blink)
+
 
         val args = arguments
         animScaleImage = AnimationUtils.loadAnimation(context, R.anim.scale)
@@ -58,6 +62,7 @@ class ArticleViewPagerFragment : Fragment() {
         //getListCoverBoyoung = args.getParcelableArrayList<Boyoung>("cover")
         coverIndex = args.getInt("subPager", 0)
 
+
         return view
     }
 
@@ -65,7 +70,11 @@ class ArticleViewPagerFragment : Fragment() {
         setPaginator()
         //getId 로 설정 changeImage(pagerIndex )
         setImageEvent();
-        //startAnimation(ivPagerImage)
+
+        skeletonScreen = Skeleton.bind(clContainer).load(R.layout.item_skeleton)
+        //
+
+        startAnimation(ivPagerImage)
     }
 
     override fun onResume() {
@@ -73,6 +82,7 @@ class ArticleViewPagerFragment : Fragment() {
         CustomLog.d("onResume")
         startAnimation(ivPagerImage)
         paginator.findViewWithTag<Button>(pagerIndex).setBackgroundResource(R.color.dark_transparent)
+
     }
 
     override fun onPause() {
@@ -100,6 +110,10 @@ class ArticleViewPagerFragment : Fragment() {
      *
      */
     private fun setImageEvent() {
+        tvTest.visibility = View.INVISIBLE
+        tsTitle.visibility = View.INVISIBLE
+        tsArticle.visibility = View.INVISIBLE
+
         bottomSheet = BottomSheetBehavior.from(llBottomSheet)
         bottomSheet.setBottomSheetCallback(object : BottomSheetBehavior.BottomSheetCallback() {
             override fun onStateChanged(bottomSheet: View, newState: Int) {
@@ -111,6 +125,11 @@ class ArticleViewPagerFragment : Fragment() {
             }
 
             override fun onSlide(bottomSheet: View, slideOffset: Float) {
+            }
+        })
+        ibBottomSheetCancel.setOnClickListener(object : View.OnClickListener {
+            override fun onClick(v: View?) {
+                bottomSheet.state = BottomSheetBehavior.STATE_COLLAPSED
             }
         })
         ivPagerImage.setOnTouchListener(object : OnSwipeTouchListener(context!!) {
@@ -140,54 +159,63 @@ class ArticleViewPagerFragment : Fragment() {
         })
         var mLastMotionX = 0.0F
         var mLastMotionY = 0.0F
+        val safeDistance = 10.0F
+        var time_down = 0.0F
+        val longClickTimer = 3.0F
         var mTouchSlop = ViewConfiguration.get(context).scaledTouchSlop; // 드래그를 인식
-        var mHasPerformedLongPress = false
-        var mHandler: Handler
+
         ivPagerImage.setOnTouchListener(object : View.OnTouchListener {
             override fun onTouch(v: View?, event: MotionEvent?): Boolean {
 
                     when (event!!.getAction()) {
                         MotionEvent.ACTION_DOWN -> {
-                            Log.d("CLICK", "ACTION_DOWN")
+                            CustomLog.cd("CLICK", "ACTION_DOWN")
                             mLastMotionX = event.getX()
                             mLastMotionY = event.getY()   // 시작 위치 저장
+                            time_down = System.currentTimeMillis().toFloat()
                            // stopAnimation(ivPagerImage)
                             ivPagerImage.animation
                             return true
                         }
                         MotionEvent.ACTION_UP ->{
-                            Log.d("CLICK", "ACTION_UP")
-                           // startAnimation(ivPagerImage)
-                            if(mLastMotionX < v!!.width / 2){
-                                pagerIndex = (pagerIndex - 1 + listBoyoung.size) % listBoyoung.size
-                                changeImage(pagerIndex)
-                            }else {
-                                pagerIndex = (pagerIndex + 1) % listBoyoung.size
-                                changeImage(pagerIndex)
+                            CustomLog.cd("CLICK", "ACTION_UP")
+                            dragX = mLastMotionX - event.getX()
+                            dragY = mLastMotionY - event.getY()
+                            CustomLog.cd("CLICK", Math.abs(dragX).toString())
+                            CustomLog.cd("CLICK", Math.abs(dragY).toString())
+                            time_down = System.currentTimeMillis().toFloat() - time_down
+                            CustomLog.cd("CLICK", time_down.toString())
+                                // 좌우는 view pager로 처리
+
+                            if(Math.abs(dragY) < safeDistance){
+                                // 클릭 안
+                                if(mLastMotionX < v!!.width / 2){
+                                    pagerIndex = (pagerIndex - 1 + listBoyoung.size) % listBoyoung.size
+                                    startAnimation(ivPagerImage)
+                                }else {
+                                    pagerIndex = (pagerIndex + 1) % listBoyoung.size
+                                    startAnimation(ivPagerImage)
+                                }
+
+                            }else if(dragY > safeDistance){
+                                //위로
+                                Log.d("Click", "move up")
+                                bottomSheet.state = BottomSheetBehavior.STATE_EXPANDED
+                            }else if( dragY < -1 * safeDistance){
+                                Log.d("Click", "move down")
+                                activity!!.onBackPressed()
                             }
-                            mHasPerformedLongPress = false
                             return true
                         }
                     }
-                return true
+                return false
             }
         })
-        viewPrev.setOnClickListener(object : View.OnClickListener {
-            override fun onClick(v: View?) {
-                pagerIndex = (pagerIndex - 1 + listBoyoung.size) % listBoyoung.size
-                changeImage(pagerIndex)
-            }
-        })
-        viewNext.setOnClickListener(object : View.OnClickListener {
-            override fun onClick(v: View?) {
-                pagerIndex = (pagerIndex + 1) % listBoyoung.size
-                changeImage(pagerIndex)
-            }
-        })
+
         // long click 시 애니메이션 조작
         ivPagerImage.setOnLongClickListener(object : View.OnLongClickListener {
             override fun onLongClick(v: View?): Boolean {
-                CustomLog.d("longClick")
+                Log.d("Click","longClick")
                 if (isAnimationing) {
                     stopAnimation(ivPagerImage)
                 } else {
@@ -210,84 +238,66 @@ class ArticleViewPagerFragment : Fragment() {
     private fun startAnimation(view: ImageView) {
         isAnimationing = true
         changeImage(pagerIndex)
+        animScaleImage.repeatMode = Animation.INFINITE
+
         animScaleImage.setAnimationListener(object : Animation.AnimationListener {
             override fun onAnimationRepeat(animation: Animation?) {
+                CustomLog.cd("REPEAT","repeat")
                 pagerIndex = (pagerIndex + 1) % listBoyoung.size
                 changeImage(pagerIndex)
                 //            animLottie.playAnimation()
             }
 
             override fun onAnimationEnd(animation: Animation?) {
+
             }
 
             override fun onAnimationStart(animation: Animation?) {
             }
         })
+
         ivPagerImage.startAnimation(animScaleImage)
     }
 
+    private fun textAnimation(view: View, duration: Long, delay: Long ){
+        view.visibility = View.VISIBLE
+
+        val animator1: ObjectAnimator = ObjectAnimator.ofFloat(view, "translationX", -view.width.toFloat(), 0F)
+        val animator2: ObjectAnimator = ObjectAnimator.ofFloat(view, "Alpha", 0F, 0F)
+        val animator3: ObjectAnimator = ObjectAnimator.ofFloat(view, "Alpha", 0F, 0.6F)
+
+        animator2.setDuration(delay)
+        animator1.setDuration(duration)
+        animator3.startDelay = delay
+        animator3.setDuration(duration)
+        animator1.startDelay = delay
+        animator2.start()
+        animator3.start()
+        animator1.start()
+    }
     /**
      * 하나의 viewpager 안에서 이미지와 텍스트 애니메이션, 변환하는 함수
      * skeleton / llArticle / tsArticle / paginator
      */
     private fun changeImage(index: Int) {
+        val showskeletonScreen = skeletonScreen.show()
         Picasso.with(context).load(resources.getIdentifier(listBoyoung[index].imageUri, "drawable", activity!!.packageName)).into(ivPagerImage, object : com.squareup.picasso.Callback {
             //다른 곳에 놓으면 이미지 로딩할 요소가 null 상태
-            val skeletonScreen: SkeletonScreen = Skeleton.bind(llArticle)
-                    .load(R.layout.item_skeleton)
-                    .duration(2000)
-                    .show()!!
-
             //로딩 후 실제 로직
             @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
             override fun onSuccess() {
-                skeletonScreen.hide()
+                showskeletonScreen.hide()
+                CustomLog.cd("Speed", "Success")
                 /**
                  * 애니메이션으로 설정
                  */
                 tsTitle.setCurrentText(listBoyoung[index].title)
                 tsArticle.setCurrentText(listBoyoung[index].overView)
-                val animTextFadeIn = AnimationUtils.loadAnimation(context, R.anim.anim_fade_in_text)
-                val animTextFadeOut = AnimationUtils.loadAnimation(context, android.R.anim.fade_out)
-                animTextFadeIn.setAnimationListener(object : Animation.AnimationListener {
-                    override fun onAnimationRepeat(animation: Animation?) {
-                    }
 
-                    override fun onAnimationEnd(animation: Animation?) {
-                        tsTitle.setText(listBoyoung[index].title)
-                        tsArticle.setText(listBoyoung[index].overView)
-                    }
+                textAnimation(tvTest, 2000, 0)
+                textAnimation(tsTitle, 2000, 1000)
+                textAnimation(tsArticle, 2000, 2000)
 
-                    override fun onAnimationStart(animation: Animation?) {
-                    }
-                })
-//                startAnimation(ivPagerImage)
-                //         tsTitle.startAnimation(animTextFadeIn)
-                //         tsArticle.startAnimation(animTextFadeIn)
-
-//                tsTitle.setFactory(object : ViewSwitcher.ViewFactory{
-//                    override fun makeView(): View {
-//                        var tvInject = TextView(baseContext)
-//                        tvInject.setTextSize(30F)
-//                        tvInject.setText("asdfasdf")
-//                        return tvInject
-//                    }
-//                })
-
-                animTextFadeOut.duration = 800
-
-                tsArticle.inAnimation = animTextFadeIn
-                tsArticle.outAnimation = animTextFadeOut
-//                animLottie.setOnClickListener(object : View.OnClickListener {
-//                    override fun onClick(v: View?) {
-//                        count++
-//                        if (count % 2 == 0) {
-//                            tsArticle.setText("Learn android with examples");
-//                        } else {
-//                            tsArticle.setText("Welcome to android tutorials");
-//                        }
-//                    }
-//                })
                 animPagerProgress.duration = animScaleImage.duration
                 animPagerProgress.fillAfter = false
 
@@ -306,8 +316,10 @@ class ArticleViewPagerFragment : Fragment() {
 
             override fun onError() {
                 // progressbar 변화 취소
+                showskeletonScreen.hide()
                 paginator.findViewWithTag<Button>(index).clearAnimation()
-            }
+                CustomLog.cd("Speed", "Error")
+             }
         })
     }
 
@@ -331,7 +343,6 @@ class ArticleViewPagerFragment : Fragment() {
                 override fun onClick(v: View?) {
                     Log.d("index", e.toString())
                     pagerIndex = e
-
                     startAnimation(ivPagerImage)
                 }
             })
@@ -342,19 +353,12 @@ class ArticleViewPagerFragment : Fragment() {
 
     override fun setUserVisibleHint(isVisibleToUser: Boolean) {
         super.setUserVisibleHint(isVisibleToUser)
-//        val skeletonScreen: SkeletonScreen = Skeleton.bind(llArticle)
-//                .load(R.layout.item_skeleton)
-//                .duration(2000)
-//                .show()!!
-        CustomLog.d(isVisibleToUser.toString())
+
         if (isResumed())
             if (isVisibleToUser == true) {
-
                 startAnimation(ivPagerImage)
-//            skeletonScreen.hide()
             } else {
                 stopAnimation(ivPagerImage)
-//                skeletonScreen.show()
             }
     }
 }
