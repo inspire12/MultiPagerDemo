@@ -77,7 +77,7 @@
                 android:background="@android:color/white"
                 android:text="TextView" />
 
-            <TextSwitcher
+            <TextView
                 android:id="@+id/tsTitle"
                 android:layout_width="300dp"
                 android:layout_height="40dp"
@@ -90,15 +90,9 @@
                 app:layout_constraintBottom_toTopOf="@+id/tvSkeletonArticle"
                 app:layout_constraintStart_toStartOf="parent">
 
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:textColor="@android:color/black"
-                    android:textSize="30sp" />
+            </TextView>
 
-            </TextSwitcher>
-
-            <TextSwitcher
+            <TextView
                 android:id="@+id/tsArticle"
                 android:layout_width="300dp"
                 android:layout_height="150dp"
@@ -111,13 +105,7 @@
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent">
 
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:textColor="@android:color/black"
-                    android:textSize="30sp" />
-
-            </TextSwitcher>
+            </TextView>
 
             <android.support.constraint.ConstraintLayout
                 android:layout_width="match_parent"
